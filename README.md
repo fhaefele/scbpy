@@ -1,4 +1,4 @@
-# SCBpy
+# Scbpy
 Is a Python package containing a collection of functions for audio processing. It is mainly used by the [Sound Communication and Behaviour research group](https://www.sdu.dk/en/forskning/sound-communication-behaviour) at the University of Southern Denmark (SDU).
 
 ## Installation
@@ -53,13 +53,13 @@ plt.show()
 ## Scbpy content
 Module | Function | Purpose
 ---|---|---
-scbpy.audio | `audioread` | Reading scaled wav-files via scipy
-scbpy.audio | `audioinfo` | Audio info from provided path
-scbpy.audio | `percent_energy_window` | Returns percent window of input signal
-scbpy.audio | `spectrum` | FFT
-scbpy.audio | `nextpow2` | Computes the closest power of 2.
-scbpy.audio | `pwelch` | PSD
-scbpy.audio | `spectrogram` | Spectrogram (scipy>=1.12)
-scbpy.audio | `legacy_spectrogram` | Spectrogram (legacy implementation for scipy<1.12)
-scbpy.yin | `yin` | Compute the Yin Algorithm
-scbpy.yin | `plt_yin` | Plot for Yin
+scbpy.audio | [audioread](./src/scbpy/audio.py#L11) | Reading scaled wav-files via scipy
+scbpy.audio | [audioinfo](./src/scbpy/audio.py#L50) | Audio info from provided path
+scbpy.audio | [percent_energy_window](./src/scbpy/audio.py#L96) | Returns percent window of input signal
+scbpy.audio | [spectrum](./src/scbpy/audio.py#L135) | FFT
+scbpy.audio | [nextpow2](./src/scbpy/audio.py#L182) | Computes the closest power of 2.
+scbpy.audio | [pwelch](./src/scbpy/audio.py#L249) | PSD
+scbpy.audio | [spectrogram](./src/scbpy/audio.py#L381) | Spectrogram (scipy>=1.12)
+scbpy.audio | [legacy_spectrogram](./src/scbpy/audio.py#L311) | Spectrogram (legacy implementation for scipy<1.12)
+scbpy.yin | [yin](./src/scbpy/yin.py#L130) | Compute the Yin Algorithm
+scbpy.yin | [plt_yin](./src/scbpy/yin.py#L184) | Plot for Yin
