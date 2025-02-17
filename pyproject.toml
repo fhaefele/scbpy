@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scbpy"
+version = "0.1.0"
+description = "A collection of Python functions of the Sound Communication and Behaviour group at the University of Southern Denmark (SDU)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+dependencies = ["scipy", "matplotlib"]
+keywords = ["sound","communication","behaviour"]
+authors = [{name = "Felix T. Haefele", email = "fhaefelegit@gmail.com"}]
+
+[project.urls]
+homepage = "https://www.sdu.dk/en/forskning/sound-communication-behaviour"
+
+[tool.ruff]
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
