@@ -353,8 +353,7 @@ def legacy_spectrogram(
     warnings.warn(
         "Uses legacy implementation of scipy.signal.spectrogram.", DeprecationWarning, stacklevel=2
     )
-    if window_fct is None:
-        window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
+    window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
     if nfft is None:
         nfft = int(2 ** nextpow2(x.shape[0]))
         if nfft > 2**16:  # limit default to max fft size of 65536
@@ -421,8 +420,7 @@ def spectrogram(
     - The spectrogram is computed using a windowed STFT with a specified overlap.
     - The power spectral density is returned in the `scale_to="magnitude"` mode.
     """
-    if window_fct is None:
-        window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
+    window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
     if nfft is None:
         nfft = int(2 ** nextpow2(x.shape[0]))
         if nfft > 2**16:  # limit default to max fft size of 65536
