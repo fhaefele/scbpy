@@ -378,7 +378,7 @@ def legacy_spectrogram(
     return f, t, Sxx
 
 
-def spectorgram(
+def spectrogram(
     x: np.ndarray,
     fs: int,
     window_fct: int | np.ndarray | None = None,
