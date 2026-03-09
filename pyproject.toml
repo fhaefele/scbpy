@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scbpy"
-version = "0.1.0"
+version = "0.1.1"
 description = "A collection of Python functions of the Sound Communication and Behaviour group at the University of Southern Denmark (SDU)."
 readme = "README.md"
 requires-python = ">=3.9"
