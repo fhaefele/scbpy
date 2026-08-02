@@ -203,7 +203,7 @@ def nextpow2(x: int | float) -> int:
     return np.ceil(np.log2(x))
 
 
-def compute_default_window(sig_len: int, window_fct: int | np.ndarray | None = None) -> np.ndarray:
+def _compute_default_window(sig_len: int, window_fct: int | np.ndarray | None = None) -> np.ndarray:
     """
     Computes a default window function based on the signal length.
 
@@ -246,6 +246,22 @@ def compute_default_window(sig_len: int, window_fct: int | np.ndarray | None = N
     return window_fct
 
 
+def _compute_default_nfft(
+    sig_len: int, window_fct: np.ndarray, nfft: int | None = None
+) -> int:
+    """Compute the default FFT length and validate it against the window length."""
+    if nfft is None:
+        nfft = int(2 ** nextpow2(sig_len))
+        if nfft > 2**16:  # limit default to max fft size of 65536
+            nfft = 2**16
+    if nfft < window_fct.shape[0]:
+        raise ValueError(
+            f"nfft must be greater than or equal to the window length {window_fct.shape[0]} "
+            "to prevent truncation."
+        )
+    return nfft
+
+
 def pwelch(
     x: np.ndarray,
     fs: int,
@@ -266,7 +282,7 @@ def pwelch(
     fs : int
         Sampling frequency of the signal in Hz.
     window_fct : int, np.ndarray, or None, optional (default=None)
-        Window will be computed by scbpy.audio.compute_default_window().
+        Window will be computed by scbpy.audio._compute_default_window().
     overlap : float, optional (default=0.5)
         Fraction of window overlap (0 to 1).
     nfft : int or None, optional (default=None)
@@ -285,16 +301,8 @@ def pwelch(
     - If `window_fct` is an integer, a Hamming window of that size is used.
     - The output PSD is converted to decibels (dB/Hz).
     """
-    window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
-    if nfft is None:
-        nfft = int(2 ** nextpow2(x.shape[0]))
-        if nfft > 2**16:  # limit default to max fft size of 65536
-            nfft = 2**16
-    if nfft < window_fct.shape[0]:
-        raise ValueError(
-            f"nfft must be greater than or equal to the window length {window_fct.shape[0]} "
-            "to prevent truncation."
-        )
+    window_fct = _compute_default_window(x.shape[0], window_fct=window_fct)
+    nfft = _compute_default_nfft(x.shape[0], window_fct, nfft)
     fx, X = scipy.signal.welch(
         x,
         fs,
@@ -303,8 +311,9 @@ def pwelch(
         nfft=nfft,
         detrend=False,
         return_onesided=True,
+        scaling="density",
     )
-    X = 10 * np.log10(X)  # scale for dB/Hz
+    X = 10 * np.log10(X + np.finfo(float).eps)
     return X, fx
 
 
@@ -325,7 +334,7 @@ def legacy_spectrogram(
     fs : int
         Sampling frequency of the signal in Hz.
     window_fct : int, np.ndarray, or None, optional
-        Window will be computed by scbpy.audio.compute_default_window().
+        Window will be computed by scbpy.audio._compute_default_window().
     overlap : float, optional (default=0.5)
         Fraction of window overlap (0 to 1).
     nfft : int or None, optional
@@ -348,21 +357,13 @@ def legacy_spectrogram(
     ------
     - This function uses the legacy implementation of `scipy.signal.spectrogram`.
     - The spectrogram is computed using a windowed STFT with a specified overlap.
-    - The power spectral density is returned in the `scaling="spectrum"` mode.
+    - The power spectral density uses Matlab-compatible one-sided density scaling.
     """
     warnings.warn(
         "Uses legacy implementation of scipy.signal.spectrogram.", DeprecationWarning, stacklevel=2
     )
-    window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
-    if nfft is None:
-        nfft = int(2 ** nextpow2(x.shape[0]))
-        if nfft > 2**16:  # limit default to max fft size of 65536
-            nfft = 2**16
-    if nfft < window_fct.shape[0]:
-        raise ValueError(
-            f"nfft must be greater than or equal to the window length {window_fct.shape[0]} "
-            "to prevent truncation."
-        )
+    window_fct = _compute_default_window(x.shape[0], window_fct=window_fct)
+    nfft = _compute_default_nfft(x.shape[0], window_fct, nfft)
 
     f, t, Sxx = scipy.signal.spectrogram(
         x,
@@ -372,7 +373,8 @@ def legacy_spectrogram(
         nfft=nfft,
         detrend=False,
         return_onesided=True,
-        scaling="spectrum",
+        scaling="density",
+        mode="psd",
     )
     return f, t, Sxx
 
@@ -394,7 +396,7 @@ def spectrogram(
     fs : int
         Sampling frequency of the signal in Hz.
     window_fct : int, np.ndarray, or None, optional
-        Window will be computed by scbpy.audio.compute_default_window().
+        Window will be computed by scbpy.audio._compute_default_window().
     overlap : float, optional (default=0.5)
         Fraction of window overlap (0 to 1).
     nfft : int or None, optional
@@ -403,7 +405,7 @@ def spectrogram(
 
     Returns:
     --------
-    tuple[np.ndarray, np.ndarray, np.ndarray]
+    tuple[np.ndarray, np.ndarray, np.ndarray, scipy.signal.ShortTimeFFT]
         - f (np.ndarray): Array of frequency bins in Hz.
         - t (np.ndarray): Array of segment time indices in seconds.
         - Sxx (np.ndarray): Spectrogram of the signal, representing the power spectral density.
@@ -416,25 +418,18 @@ def spectrogram(
 
     Notes:
     ------
-    - Uses scipy.signal.ShorTimeFFT class to compute the spectrogram.
+    - Uses scipy.signal.ShortTimeFFT class to compute the spectrogram.
     - The spectrogram is computed using a windowed STFT with a specified overlap.
-    - The power spectral density is returned in the `scale_to="magnitude"` mode.
+    - The power spectral density uses Matlab-compatible one-sided density scaling.
     """
-    window_fct = compute_default_window(x.shape[0], window_fct=window_fct)
-    if nfft is None:
-        nfft = int(2 ** nextpow2(x.shape[0]))
-        if nfft > 2**16:  # limit default to max fft size of 65536
-            nfft = 2**16
-    if nfft < window_fct.shape[0]:
-        raise ValueError(
-            f"nfft must be greater than or equal to the window length {window_fct.shape[0]} "
-            "to prevent truncation."
-        )
+    window_fct = _compute_default_window(x.shape[0], window_fct=window_fct)
+    nfft = _compute_default_nfft(x.shape[0], window_fct, nfft)
     SFT = scipy.signal.ShortTimeFFT(
         window_fct,
         hop=int((1 - overlap) * window_fct.shape[0]),
         fs=fs,
         mfft=nfft,
-        scale_to="magnitude",
+        scale_to="psd",
+        fft_mode="onesided2X",
     )
-    return SFT.f, SFT.t(x.shape[0]), SFT.spectrogram(x, detr="constant"), SFT
+    return SFT.f, SFT.t(x.shape[0]), SFT.spectrogram(x), SFT
