@@ -1,7 +1,7 @@
 """
 ***********************************************************************
 Name            : yin.py
-Description     : Fundamental frequency estimation. Based on the YIN alorgorithm [1]: De Cheveigné,
+Description     : Fundamental frequency estimation. Based on the YIN algorithm [1]: De Cheveigné,
                   A., & Kawahara, H. (2002). YIN, a fundamental frequency estimator for speech and
                   music. The Journal of the Acoustical Society of America, 111(4), 1917-1930.
 Author          : Patrice Guyot. Previous works on the implementation of the YIN algorithm have
@@ -9,7 +9,7 @@ Author          : Patrice Guyot. Previous works on the implementation of the YIN
 Email           : patrice.guyot@irit.fr
 Source          : https://github.com/patriceguyot/Yin
 ***********************************************************************
-Note: Modifed for packaging by Felix T. Haefele (fhaefelegit@gmail.com")
+Note: Modified for packaging by Felix T. Haefele (fhaefelegit@gmail.com")
 """
 
 import matplotlib.pyplot as plt
@@ -44,8 +44,8 @@ def differenceFunction_scipy(x, N, tau_max):
     Faster implementation of the difference function.
     The required calculation can be easily evaluated by Autocorrelation function or similarly by
     convolution. Wiener-Khinchin theorem allows computing the autocorrelation with two Fast
-    Fourier transforms (FFT), with time complexity O(n log n). This function use an accellerated
-    convolution function fftconvolve from Scipy package.
+    Fourier transforms (FFT), with time complexity O(n log n). This function use an accelerated
+    convolution function fftconvolve from SciPy package.
 
     :param x: audio data
     :param N: length of data
@@ -66,7 +66,7 @@ def differenceFunction(x, N, tau_max):
     Compute difference function of data x. This corresponds to equation (6) in [1]
 
     Fastest implementation. Use the same approach than differenceFunction_scipy.
-    This solution is implemented directly with Numpy fft.
+    This solution is implemented directly with NumPy fft.
 
 
     :param x: audio data
@@ -138,8 +138,8 @@ def yin(sig, sr, w_len=512, w_step=256, f0_min=100, f0_max=500, harmo_thresh=0.1
     :param w_step: size of the lag between two consecutives windows (samples)
     :param f0_min: Minimum fundamental frequency that can be detected (hertz)
     :param f0_max: Maximum fundamental frequency that can be detected (hertz)
-    :param harmo_tresh: Threshold of detection. The yalgorithmù return the first minimum of the
-                            CMND fubction below this treshold.
+    :param harmo_thresh: Threshold of detection. The algorithm returns the first minimum of the
+                            CMND function below this threshold.
 
     :returns:
 
