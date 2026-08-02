@@ -2,7 +2,7 @@
 Is a Python package containing a collection of functions for audio processing. It is mainly used by the [Sound Communication and Behaviour research group](https://www.sdu.dk/en/forskning/sound-communication-behaviour) at the University of Southern Denmark (SDU).
 
 ## Installation
-### Direct install from Github
+### Direct install from GitHub
 This installs the package directly into your active venv as
 ```bash
 pip install git+ssh://git@github.com:fhaefele/scbpy.git
@@ -13,7 +13,7 @@ pip install git+https://github.com/fhaefele/scbpy.git
 ```
 
 ### Install it in editable mode
-Cloning the repository to your harddrive and install it as editable package via
+Cloning the repository to your hard drive and install it as editable package via
 ```bash
 git clone https://github.com/fhaefele/scbpy.git
 cd ./scbpy
@@ -22,7 +22,7 @@ pip install -e .
 Note: make sure the paths in above are adjusted for your setup. The path in `pip install -e .` refers to the directory in which you just changed with `cd`.
 
 ## Usage
-After installion you can import the modules/functions directly as
+After installation you can import the modules/functions directly as
 ```Python
 import scbpy.audio
 import scbpy.yin
@@ -50,10 +50,29 @@ plt.grid()
 plt.show()
 ```
 
+### Plot a spectrogram
+```Python
+import matplotlib.pyplot as plt
+import numpy as np
+import scbpy.audio
+
+x, fs = scbpy.audio.audioread('/path/to/file.wav')
+f, t, Sxx, _ = scbpy.audio.spectrogram(
+    x, fs, window_fct=2048, overlap=0.5, nfft=2048
+)
+Sxx_db = 10 * np.log10(Sxx + np.finfo(float).eps)
+
+fig, ax = plt.subplots()
+image = ax.pcolormesh(t, f / 1e3, Sxx_db, shading="auto")
+ax.set(xlabel="Time [s]", ylabel="Frequency [kHz]")
+fig.colorbar(image, ax=ax, label="PSD [dB/Hz]")
+plt.show()
+```
+
 ## Scbpy content
 Module | Function | Purpose
 ---|---|---
-scbpy.audio | [audioread](./src/scbpy/audio.py#L11) | Reading scaled wav-files via scipy
+scbpy.audio | [audioread](./src/scbpy/audio.py#L11) | Reading scaled wav-files via SciPy
 scbpy.audio | [audioinfo](./src/scbpy/audio.py#L50) | Audio info from provided path
 scbpy.audio | [percent_energy_window](./src/scbpy/audio.py#L96) | Returns percent window of input signal
 scbpy.audio | [spectrum](./src/scbpy/audio.py#L135) | FFT
